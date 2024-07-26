@@ -87,61 +87,38 @@ public class Encoder {
 	}
 	
 	public static byte[] encodeFloat(float value) throws OpeException {
-		ByteBuffer bb = ByteBuffer.allocate(4);
-		bb.putFloat(value);
-		byte[] b = bb.array();
-		
-		if ((b[0] & 0x80) == 0) { b[0] |= 0x80; }
-		else {
-			for (int i = 0; i < b.length; i++) { b[i] = (byte) ~b[i]; }
+		int floatInt = Float.floatToIntBits(value);
+		if (floatInt <0) {
+			floatInt = -floatInt - Integer.MAX_VALUE;
 		}
-		
-		return b;
+		return encodeInt(floatInt);
 	}
 	
 	public static float decodeFloat(byte[] value) throws OpeException {
 		checkLength(value, 4);
-		
-		ByteBuffer bb = ByteBuffer.allocate(4);
-		bb.put(value);
-		
-		bb.position(0);
-		if ((value[0] & 0x80) != 0) { bb.put((byte) (value[0] & 0x7f)); }
-		else {
-			for (int i = 0; i < value.length; i++) { bb.put((byte) ~value[i]); }
+
+		int floatInt = decodeInt(value);
+		if (floatInt < 0) {
+			floatInt = -floatInt + Integer.MAX_VALUE;
 		}
-		
-		bb.position(0);
-		return bb.getFloat();
+		return Float.intBitsToFloat(floatInt);
 	}
 	
 	public static byte[] encodeDouble(double value) throws OpeException {
-		ByteBuffer bb = ByteBuffer.allocate(8);
-		bb.putDouble(value);
-		byte[] b = bb.array();
-		
-		if ((b[0] & 0x80) != 0) { b[0] &= 0x7f; }
-		else {
-			for (int i = 0; i < b.length; i++) { b[i] = (byte) ~b[i]; }
+		long doubleLong = Double.doubleToLongBits(value);
+		if (doubleLong < 0) {
+			doubleLong = -doubleLong - Long.MAX_VALUE;
 		}
-		
-		return b;
+		return encodeLong(doubleLong);
 	}
 	
 	public static double decodeDouble(byte[] value) throws OpeException {
 		checkLength(value, 8);
-		
-		ByteBuffer bb = ByteBuffer.allocate(8);
-		bb.put(value);
-		
-		bb.position(0);
-		if ((value[0] & 0x80) == 0) { bb.put((byte) (value[0] | 0x80)); }
-		else {
-			for (int i = 0; i < value.length; i++) { bb.put((byte) ~value[i]); }
+		long doubleLong = decodeLong(value);
+		if (doubleLong < 0) {
+			doubleLong = -doubleLong + Long.MAX_VALUE;
 		}
-		
-		bb.position(0);
-		return bb.getDouble();
+		return Double.longBitsToDouble(doubleLong);
 	}
 	
 	public static byte[] encodeChar(char value) throws OpeException {
