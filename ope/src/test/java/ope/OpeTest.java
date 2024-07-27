@@ -107,7 +107,7 @@ public abstract class OpeTest {
 		}
 		
 		// Validate result set size
-		Assert.assertEquals(results.size(), 11);
+		Assert.assertEquals(11, results.size());
 		
 		// Print plaintext results
 		System.out.println();
